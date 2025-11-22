@@ -21,7 +21,7 @@
     "chrome-launcher": "^0.15.2",
     "exceljs": "^4.4.0",
     "fs-extra": "^11.1.1",
-    "lighthouse": "^13.0.1",
+    "lighthouse": "9.6.8",
     "xlsx": "^0.18.5"
   },
   "engines": {
