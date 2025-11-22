@@ -42,6 +42,13 @@ class PerformanceAnalyzer {
                 // 진행률 표시
                 Utils.showProgress(i, config.SITES.length, site.name);
 
+                // 다른 URL로 변경시에 Chrome 재시작
+                if (i > 0) {
+                    console.log(`\n🔄 다음 사이트 측정을 위한 Chrome 재시작...`);
+                    await this.chromeManager.restartChrome();
+                    await Utils.sleep(2000);
+                 }
+
                 const siteResult = await this.measureSite(site);
                 allResults.push(siteResult);
                 if (allResults.length > 0) {
