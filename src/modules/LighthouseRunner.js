@@ -64,6 +64,7 @@ class LighthouseRunner {
         }
     }
 
+
     async measureMultiple(url, useCache, count) {
         const cacheStatus = useCache ? '있음' : '없음';
         console.log(`🎯 측정 시작 - 캐시 ${cacheStatus} (${count}회)`);
@@ -74,6 +75,13 @@ class LighthouseRunner {
             console.log(`📊 측정 중: ${url} (캐시 ${cacheStatus}) - ${i}번째`);
             
             try {
+                // ✅ 추가: 첫 측정이 아니면 Chrome 재시작
+                if (i > 1) {
+                    console.log(`   🔄 측정 전 Chrome 재시작...`);
+                    await this.chromeManager.restartChrome();
+                    await this.sleep(2000);
+                }
+                
                 const result = await this.measureSingle(url, useCache);
                 results.push(result);
                 
