@@ -44,6 +44,13 @@ class PerformanceAnalyzer {
 
                 const siteResult = await this.measureSite(site);
                 allResults.push(siteResult);
+                if (allResults.length > 0) {
+                    try {
+                        await this.savePartialResults(allResults, startTime);
+                    } catch (saveError) {
+                        console.log('⚠️ 중간 저장 실패:', saveError.message);
+                    }
+                }
             }
 
             // 결과 생성
@@ -77,8 +84,10 @@ class PerformanceAnalyzer {
 
             console.log(`✅ ${site.name} - 캐시 없음 측정 완료`);
 
-            // 측정 간 대기
-            await Utils.sleep(config.WAIT_TIME_BETWEEN_MEASUREMENTS);
+            // 측정 간 대기, 캐시 모드 전환
+            console.log(`🔄 캐시 모드 전환을 위한 Chrome 재시작...`);
+            await this.chromeManager.restartChrome();
+            await Utils.sleep(2000);
 
             // 캐시 있음 측정
             console.log(`🎯 ${site.name} - 캐시 있음 측정 시작`);  
@@ -159,15 +168,9 @@ async function main() {
 
 // 프로세스 신호 처리
 process.on('SIGINT', async () => {
-    console.log('\n⚠️ 프로그램 중단 신호 감지, 정리 중...');
-    
-    try {
-        const chromeManager = new ChromeManager();
-        await chromeManager.stopChrome();
-    } catch (error) {
-        // 무시
+    if (globalAnalyzer?.chromeManager) {
+        await globalAnalyzer.chromeManager.stopChrome();
     }
-    
     process.exit(0);
 });
 

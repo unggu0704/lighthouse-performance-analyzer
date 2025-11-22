@@ -22,7 +22,9 @@ class ChromeManager {
 
             this.chrome = await chromeLauncher.launch({
                 chromeFlags: config.CHROME_FLAGS,
-                port: config.CHROME_PORT
+                port: config.CHROME_PORT,
+                connectionPollInterval: 500,  
+                maxConnectionRetries: 50     
             });
 
             this.chromePort = this.chrome.port;
@@ -57,7 +59,7 @@ class ChromeManager {
     async restartChrome() {
         console.log('🔄 Chrome 재시작 중...');
         await this.stopChrome();
-        await this.sleep(3000);
+        await this.sleep(5000);
         await this.startChrome();
     }
 
@@ -70,18 +72,15 @@ class ChromeManager {
     }
 
     async killExistingChrome() {
+        const isWin = process.platform === 'win32';
         try {
-            await execAsync('pkill -f "Google Chrome" || true');
-            await execAsync('pkill -f "chrome" || true');
-            
-            // 포트 정리
-            try {
-                await execAsync(`lsof -ti:${config.CHROME_PORT} | xargs kill -9 || true`);
-            } catch (e) {
-                // 무시 - 프로세스가 없을 수 있음
+            if (isWin) {
+                await execAsync('taskkill /F /IM chrome.exe /T 2>nul || exit 0');
+            } else {
+                await execAsync('pkill -f "chrome" || true');
             }
         } catch (error) {
-            // 무시 - 프로세스 정리 실패는 치명적이지 않음
+            // ignore
         }
     }
 
