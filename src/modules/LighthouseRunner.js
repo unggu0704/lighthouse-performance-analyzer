@@ -105,13 +105,22 @@ class LighthouseRunner {
 
     extractMetrics(lhr) {
         const audits = lhr.audits;
-        return {
+
+        const metrics = {
             fcp: audits['first-contentful-paint']?.numericValue || 0,
             lcp: audits['largest-contentful-paint']?.numericValue || 0,
             tbt: audits['total-blocking-time']?.numericValue || 0,
             cls: audits['cumulative-layout-shift']?.numericValue || 0,
             si: audits['speed-index']?.numericValue || 0
         };
+
+        // SI 값 디버깅
+        if (metrics.si === 0) {
+            console.log('   ⚠️ SI(Speed Index)가 0입니다. audit 확인:');
+            console.log('   speed-index audit:', audits['speed-index']);
+        }
+
+        return metrics;
     }
 
     getDefaultMetrics() {
@@ -139,7 +148,7 @@ class LighthouseRunner {
         return {
             fcp: Math.round(totals.fcp / count),
             lcp: Math.round(totals.lcp / count),
-            tbt: Math.round(totals.tbt / count),
+            tbt: totals.tbt / count, // TBT는 소수점 유지 (나중에 초로 변환)
             cls: Math.round((totals.cls / count) * 1000) / 1000, // CLS는 소수점 3자리
             si: Math.round(totals.si / count)
         };

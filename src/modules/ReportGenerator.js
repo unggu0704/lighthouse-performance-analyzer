@@ -43,8 +43,8 @@ class ReportGenerator {
             '사이트명',
             '캐시 상태',
             'FCP (ms)',
-            'LCP (ms)', 
-            'TBT (ms)',
+            'LCP (ms)',
+            'TBT (s)',
             'CLS',
             'SI (ms)'
         ];
@@ -68,7 +68,7 @@ class ReportGenerator {
                     C: index + 1,       // 측정 회차
                     D: run.fcp,
                     E: run.lcp,
-                    F: run.tbt,
+                    F: run.tbt / 1000,  // ms를 s로 변환
                     G: run.cls,
                     H: run.si
                 });
@@ -82,35 +82,39 @@ class ReportGenerator {
                     C: index + 1,       // 측정 회차
                     D: run.fcp,
                     E: run.lcp,
-                    F: run.tbt,
+                    F: run.tbt / 1000,  // ms를 s로 변환
                     G: run.cls,
                     H: run.si
                 });
             });
         });
+
+        // 평균 데이터 추가
         allResults.forEach(siteResult => {
-            const siteName = siteResult.siteName + "평균";
-            
-            // 캐시 없음 데이터
+            const siteName = siteResult.siteName + " 평균";
+
+            // 캐시 없음 평균
             worksheet.addRow({
                 A: siteName,
                 B: '캐시 없음',
-                C: siteResult.noCache.fcp,
-                D: siteResult.noCache.lcp,
-                E: siteResult.noCache.tbt,
-                F: siteResult.noCache.cls,
-                G: siteResult.noCache.si
+                C: '',  // 회차 번호 빈칸
+                D: siteResult.noCache.average.fcp,
+                E: siteResult.noCache.average.lcp,
+                F: siteResult.noCache.average.tbt / 1000,  // ms를 s로 변환
+                G: siteResult.noCache.average.cls,
+                H: siteResult.noCache.average.si
             });
-            
-            // 캐시 있음 데이터
+
+            // 캐시 있음 평균
             worksheet.addRow({
                 A: siteName,
                 B: '캐시 있음',
-                C: siteResult.withCache.fcp,
-                D: siteResult.withCache.lcp,
-                E: siteResult.withCache.tbt,
-                F: siteResult.withCache.cls,
-                G: siteResult.withCache.si
+                C: '',  // 회차 번호 빈칸
+                D: siteResult.withCache.average.fcp,
+                E: siteResult.withCache.average.lcp,
+                F: siteResult.withCache.average.tbt / 1000,  // ms를 s로 변환
+                G: siteResult.withCache.average.cls,
+                H: siteResult.withCache.average.si
             });
         });
     }
@@ -150,15 +154,20 @@ class ReportGenerator {
                         bottom: { style: 'thin' },
                         right: { style: 'thin' }
                     };
-                    
+
                     // 숫자 컬럼은 우측 정렬
                     if (colNumber > 2) {
                         cell.alignment = { horizontal: 'right' };
-                        cell.numFmt = colNumber === 6 ? '0.000' : '0'; // CLS는 소수점 3자리
+                        // F(6)=TBT(s), G(7)=CLS는 소수점 3자리, 나머지는 정수
+                        if (colNumber === 6 || colNumber === 7) {
+                            cell.numFmt = '0.000';
+                        } else {
+                            cell.numFmt = '0';
+                        }
                     } else {
                         cell.alignment = { horizontal: 'center' };
                     }
-                    
+
                     // 캐시 있음/없음에 따른 배경색
                     const cacheStatus = row.getCell(2).value;
                     if (cacheStatus === '캐시 없음') {
@@ -194,7 +203,7 @@ class ReportGenerator {
             '캐시 상태': 12,
             'FCP (ms)': 12,
             'LCP (ms)': 12,
-            'TBT (ms)': 12,
+            'TBT (s)': 12,
             'CLS': 10,
             'SI (ms)': 12
         };
@@ -226,7 +235,8 @@ class ReportGenerator {
     }
 
     printMetrics(metrics) {
-        console.log(`      FCP: ${metrics.fcp}ms, LCP: ${metrics.lcp}ms, TBT: ${metrics.tbt}ms, CLS: ${metrics.cls}, SI: ${metrics.si}ms`);
+        const tbtInSeconds = (metrics.average.tbt / 1000).toFixed(3);
+        console.log(`      FCP: ${metrics.average.fcp}ms, LCP: ${metrics.average.lcp}ms, TBT: ${tbtInSeconds}s, CLS: ${metrics.average.cls.toFixed(3)}, SI: ${metrics.average.si}ms`);
     }
 }
 
