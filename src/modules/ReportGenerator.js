@@ -42,11 +42,12 @@ class ReportGenerator {
         const headers = [
             '사이트명',
             '캐시 상태',
-            'FCP (ms)',
-            'LCP (ms)',
-            'TBT (s)',
+            '회차',
+            'FCP',
+            'LCP',
+            'TBT',
             'CLS',
-            'SI (ms)'
+            'SI'
         ];
 
         worksheet.columns = headers.map((header, index) => ({
@@ -66,11 +67,11 @@ class ReportGenerator {
                     A: siteName,
                     B: '캐시 없음',
                     C: index + 1,       // 측정 회차
-                    D: run.fcp,
-                    E: run.lcp,
-                    F: run.tbt / 1000,  // ms를 s로 변환
+                    D: this.convertToOptimalUnit(run.fcp),
+                    E: this.convertToOptimalUnit(run.lcp),
+                    F: this.convertToOptimalUnit(run.tbt),
                     G: run.cls,
-                    H: run.si
+                    H: this.convertToOptimalUnit(run.si)
                 });
             });
 
@@ -80,11 +81,11 @@ class ReportGenerator {
                     A: siteName,
                     B: '캐시 있음',
                     C: index + 1,       // 측정 회차
-                    D: run.fcp,
-                    E: run.lcp,
-                    F: run.tbt / 1000,  // ms를 s로 변환
+                    D: this.convertToOptimalUnit(run.fcp),
+                    E: this.convertToOptimalUnit(run.lcp),
+                    F: this.convertToOptimalUnit(run.tbt),
                     G: run.cls,
-                    H: run.si
+                    H: this.convertToOptimalUnit(run.si)
                 });
             });
         });
@@ -98,11 +99,11 @@ class ReportGenerator {
                 A: siteName,
                 B: '캐시 없음',
                 C: '',  // 회차 번호 빈칸
-                D: siteResult.noCache.average.fcp,
-                E: siteResult.noCache.average.lcp,
-                F: siteResult.noCache.average.tbt / 1000,  // ms를 s로 변환
+                D: this.convertToOptimalUnit(siteResult.noCache.average.fcp),
+                E: this.convertToOptimalUnit(siteResult.noCache.average.lcp),
+                F: this.convertToOptimalUnit(siteResult.noCache.average.tbt),
                 G: siteResult.noCache.average.cls,
-                H: siteResult.noCache.average.si
+                H: this.convertToOptimalUnit(siteResult.noCache.average.si)
             });
 
             // 캐시 있음 평균
@@ -110,13 +111,21 @@ class ReportGenerator {
                 A: siteName,
                 B: '캐시 있음',
                 C: '',  // 회차 번호 빈칸
-                D: siteResult.withCache.average.fcp,
-                E: siteResult.withCache.average.lcp,
-                F: siteResult.withCache.average.tbt / 1000,  // ms를 s로 변환
+                D: this.convertToOptimalUnit(siteResult.withCache.average.fcp),
+                E: this.convertToOptimalUnit(siteResult.withCache.average.lcp),
+                F: this.convertToOptimalUnit(siteResult.withCache.average.tbt),
                 G: siteResult.withCache.average.cls,
-                H: siteResult.withCache.average.si
+                H: this.convertToOptimalUnit(siteResult.withCache.average.si)
             });
         });
+    }
+
+    // 값이 1000 이상이면 초(s)로 변환, 미만이면 ms 그대로
+    convertToOptimalUnit(valueInMs) {
+        if (valueInMs >= 1000) {
+            return valueInMs / 1000; // 초로 변환
+        }
+        return valueInMs; // ms 그대로
     }
 
     applyStyles(worksheet) {
@@ -155,15 +164,24 @@ class ReportGenerator {
                         right: { style: 'thin' }
                     };
 
-                    // 숫자 컬럼은 우측 정렬
-                    if (colNumber > 2) {
+                    // 숫자 컬럼은 우측 정렬 및 포맷 설정
+                    if (colNumber > 3) { // D, E, F, G, H (FCP, LCP, TBT, CLS, SI)
                         cell.alignment = { horizontal: 'right' };
-                        // F(6)=TBT(s), G(7)=CLS는 소수점 3자리, 나머지는 정수
-                        if (colNumber === 6 || colNumber === 7) {
+
+                        // CLS는 항상 소수점 3자리
+                        if (colNumber === 7) { // G = CLS
                             cell.numFmt = '0.000';
                         } else {
-                            cell.numFmt = '0';
+                            // 값이 1 미만이면 초 단위 (소수점 3자리), 아니면 ms (정수)
+                            const value = cell.value;
+                            if (typeof value === 'number' && value < 1 && value > 0) {
+                                cell.numFmt = '0.000';
+                            } else {
+                                cell.numFmt = '0';
+                            }
                         }
+                    } else if (colNumber === 3) { // C = 회차
+                        cell.alignment = { horizontal: 'center' };
                     } else {
                         cell.alignment = { horizontal: 'center' };
                     }
@@ -201,11 +219,12 @@ class ReportGenerator {
         const widths = {
             '사이트명': 20,
             '캐시 상태': 12,
-            'FCP (ms)': 12,
-            'LCP (ms)': 12,
-            'TBT (s)': 12,
+            '회차': 8,
+            'FCP': 12,
+            'LCP': 12,
+            'TBT': 12,
             'CLS': 10,
-            'SI (ms)': 12
+            'SI': 12
         };
         return widths[header] || 15;
     }
@@ -235,8 +254,20 @@ class ReportGenerator {
     }
 
     printMetrics(metrics) {
-        const tbtInSeconds = (metrics.average.tbt / 1000).toFixed(3);
-        console.log(`      FCP: ${metrics.average.fcp}ms, LCP: ${metrics.average.lcp}ms, TBT: ${tbtInSeconds}s, CLS: ${metrics.average.cls.toFixed(3)}, SI: ${metrics.average.si}ms`);
+        const fcp = this.formatMetricForConsole(metrics.average.fcp);
+        const lcp = this.formatMetricForConsole(metrics.average.lcp);
+        const tbt = this.formatMetricForConsole(metrics.average.tbt);
+        const si = this.formatMetricForConsole(metrics.average.si);
+        const cls = metrics.average.cls.toFixed(3);
+
+        console.log(`      FCP: ${fcp}, LCP: ${lcp}, TBT: ${tbt}, CLS: ${cls}, SI: ${si}`);
+    }
+
+    formatMetricForConsole(valueInMs) {
+        if (valueInMs >= 1000) {
+            return `${(valueInMs / 1000).toFixed(3)}s`;
+        }
+        return `${Math.round(valueInMs)}ms`;
     }
 }
 

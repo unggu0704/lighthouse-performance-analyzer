@@ -146,11 +146,11 @@ class LighthouseRunner {
 
         const count = results.length;
         return {
-            fcp: Math.round(totals.fcp / count),
-            lcp: Math.round(totals.lcp / count),
-            tbt: totals.tbt / count, // TBT는 소수점 유지 (나중에 초로 변환)
+            fcp: totals.fcp / count, // 소수점 유지
+            lcp: totals.lcp / count, // 소수점 유지
+            tbt: totals.tbt / count, // 소수점 유지
             cls: Math.round((totals.cls / count) * 1000) / 1000, // CLS는 소수점 3자리
-            si: Math.round(totals.si / count)
+            si: totals.si / count  // 소수점 유지
         };
     }
 
