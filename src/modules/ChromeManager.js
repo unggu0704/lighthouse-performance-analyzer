@@ -56,6 +56,43 @@ class ChromeManager {
         }
     }
 
+    async killExistingChrome() {
+        const isWin = process.platform === 'win32';
+        try {
+            if (isWin) {
+                // Windows: taskkill 명령어 사용
+                await execAsync('taskkill /F /IM chrome.exe /T 2>nul || exit 0');
+            } else {
+                // Mac/Linux: pkill 명령어 사용
+                await execAsync('pkill -f "chrome" || true');
+            }
+        } catch (error) {
+            // ignore
+        }
+    }
+
+    async checkConnection() {
+        if (!this.chromePort) return false;
+        
+        try {
+            const http = require('http');
+            
+            return new Promise((resolve) => {
+                const req = http.get(`http://localhost:${this.chromePort}/json`, (res) => {
+                    resolve(res.statusCode === 200);
+                });
+                
+                req.on('error', () => resolve(false));
+                req.setTimeout(3000, () => {
+                    req.destroy();
+                    resolve(false);
+                });
+            });
+        } catch (error) {
+            return false;
+        }
+    }
+
     async restartChrome() {
         console.log('🔄 Chrome 재시작 중...');
         await this.stopChrome();
@@ -69,30 +106,6 @@ class ChromeManager {
 
     getPort() {
         return this.chromePort;
-    }
-
-    async killExistingChrome() {
-        const isWin = process.platform === 'win32';
-        try {
-            if (isWin) {
-                await execAsync('taskkill /F /IM chrome.exe /T 2>nul || exit 0');
-            } else {
-                await execAsync('pkill -f "chrome" || true');
-            }
-        } catch (error) {
-            // ignore
-        }
-    }
-
-    async checkConnection() {
-        if (!this.chromePort) return false;
-        
-        try {
-            const { stdout } = await execAsync(`curl -s http://localhost:${this.chromePort}/json || echo "failed"`);
-            return !stdout.includes('failed');
-        } catch (error) {
-            return false;
-        }
     }
 
     sleep(ms) {

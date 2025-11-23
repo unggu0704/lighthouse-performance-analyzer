@@ -45,21 +45,44 @@ class Utils {
         return usage;
     }
 
-    // 프로세스 실행 중 확인
     static async isProcessRunning(processName) {
         try {
-            const { stdout } = await execAsync(`ps aux | grep -i "${processName}" | grep -v grep || echo "not found"`);
-            return !stdout.includes('not found');
+            const isWindows = process.platform === 'win32';
+            
+            if (isWindows) {
+                // Windows: tasklist + findstr 사용
+                // tasklist: 실행 중인 모든 프로세스 목록
+                // findstr /I: 대소문자 구분 없이 검색
+                const { stdout } = await execAsync(`tasklist | findstr /I "${processName}" || echo not found`);
+                return !stdout.includes('not found');
+            } else {
+                // Mac/Linux: ps aux + grep 사용
+                // ps aux: 모든 프로세스의 상세 정보
+                // grep -v grep: grep 자신은 제외
+                const { stdout } = await execAsync(`ps aux | grep -i "${processName}" | grep -v grep || echo "not found"`);
+                return !stdout.includes('not found');
+            }
         } catch (error) {
             return false;
         }
     }
 
-    // 포트 사용 중 확인
     static async isPortInUse(port) {
         try {
-            const { stdout } = await execAsync(`lsof -i :${port} || echo "not used"`);
-            return !stdout.includes('not used');
+            const isWindows = process.platform === 'win32';
+            
+            if (isWindows) {
+                // Windows: netstat 사용
+                // netstat -ano: 모든 연결, 숫자 형식, PID 표시
+                // findstr: 특정 포트 번호 검색
+                const { stdout } = await execAsync(`netstat -ano | findstr :${port} || echo not used`);
+                return !stdout.includes('not used');
+            } else {
+                // Mac/Linux: lsof 사용
+                // lsof -i :포트번호: 해당 포트를 사용하는 프로세스 표시
+                const { stdout } = await execAsync(`lsof -i :${port} || echo "not used"`);
+                return !stdout.includes('not used');
+            }
         } catch (error) {
             return false;
         }
