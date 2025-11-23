@@ -56,7 +56,7 @@ class LighthouseRunner {
                     console.log(`   ⚠️ Chrome 재시작 실패: ${restartError.message}`);
                 }
                 
-                await this.sleep(2000);
+                await this.sleep(1000);
                 return this.measureSingle(url, useCache, retryCount + 1);
             }
             
@@ -79,7 +79,7 @@ class LighthouseRunner {
                 if (i > 1) {
                     console.log(`   🔄 측정 전 Chrome 재시작...`);
                     await this.chromeManager.restartChrome();
-                    await this.sleep(2000);
+                    await this.sleep(1000);
                 }
                 
                 const result = await this.measureSingle(url, useCache);

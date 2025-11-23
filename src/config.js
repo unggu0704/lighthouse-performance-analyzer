@@ -1,7 +1,7 @@
 // config.js - 설정 관리
 module.exports = {
     // 측정 설정
-    MEASUREMENTS_PER_CACHE_TYPE: 5,
+    MEASUREMENTS_PER_CACHE_TYPE: 2,
     WAIT_TIME_BETWEEN_MEASUREMENTS: 3000, // 3초
     MAX_RETRIES: 2,
     MEASUREMENT_TIMEOUT: 30000, // 30초

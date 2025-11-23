@@ -51,13 +51,6 @@ class PerformanceAnalyzer {
 
                 const siteResult = await this.measureSite(site);
                 allResults.push(siteResult);
-                if (allResults.length > 0) {
-                    try {
-                        await this.savePartialResults(allResults, startTime);
-                    } catch (saveError) {
-                        console.log('⚠️ 중간 저장 실패:', saveError.message);
-                    }
-                }
             }
 
             // 결과 생성
