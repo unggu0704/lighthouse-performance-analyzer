@@ -86,6 +86,9 @@ temp/
 logs
 *.log
 
+*Excel
+*.xlsx
+
 # Lighthouse 관련 파일들
 lighthouse-results/
 lighthouse-reports/
