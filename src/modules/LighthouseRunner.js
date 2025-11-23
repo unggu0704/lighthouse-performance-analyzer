@@ -97,7 +97,10 @@ class LighthouseRunner {
             }
         }
 
-        return this.calculateAverage(results);
+        return {
+            average: this.calculateAverage(results),
+            runs: results
+        };
     }
 
     extractMetrics(lhr) {

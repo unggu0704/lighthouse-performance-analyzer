@@ -59,6 +59,37 @@ class ReportGenerator {
     addDataRows(worksheet, allResults) {
         allResults.forEach(siteResult => {
             const siteName = siteResult.siteName;
+
+            // 캐시 없음 각 회차
+            siteResult.noCache.runs.forEach((run, index) => {
+                worksheet.addRow({
+                    A: siteName,
+                    B: '캐시 없음',
+                    C: index + 1,       // 측정 회차
+                    D: run.fcp,
+                    E: run.lcp,
+                    F: run.tbt,
+                    G: run.cls,
+                    H: run.si
+                });
+            });
+
+            // 캐시 있음 각 회차
+            siteResult.withCache.runs.forEach((run, index) => {
+                worksheet.addRow({
+                    A: siteName,
+                    B: '캐시 있음',
+                    C: index + 1,       // 측정 회차
+                    D: run.fcp,
+                    E: run.lcp,
+                    F: run.tbt,
+                    G: run.cls,
+                    H: run.si
+                });
+            });
+        });
+        allResults.forEach(siteResult => {
+            const siteName = siteResult.siteName + "평균";
             
             // 캐시 없음 데이터
             worksheet.addRow({
