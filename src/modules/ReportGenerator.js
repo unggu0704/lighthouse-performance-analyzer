@@ -41,13 +41,17 @@ class ReportGenerator {
     setupHeaders(worksheet) {
         const headers = [
             '사이트명',
-            '캐시 상태',
             '회차',
-            'FCP',
-            'LCP',
-            'TBT',
-            'CLS',
-            'SI'
+            'FCP (캐시 없음)',
+            'FCP (캐시 있음)',
+            'LCP (캐시 없음)',
+            'LCP (캐시 있음)',
+            'TBT (캐시 없음)',
+            'TBT (캐시 있음)',
+            'CLS (캐시 없음)',
+            'CLS (캐시 있음)',
+            'SI (캐시 없음)',
+            'SI (캐시 있음)'
         ];
 
         worksheet.columns = headers.map((header, index) => ({
@@ -61,59 +65,47 @@ class ReportGenerator {
         allResults.forEach(siteResult => {
             const siteName = siteResult.siteName;
 
-            // 캐시 없음 각 회차
-            siteResult.noCache.runs.forEach((run, index) => {
+            // 각 회차별로 캐시 없음/있음 데이터를 같은 행에 배치
+            const runCount = Math.max(
+                siteResult.noCache.runs.length,
+                siteResult.withCache.runs.length
+            );
+
+            for (let i = 0; i < runCount; i++) {
+                const noCacheRun = siteResult.noCache.runs[i];
+                const withCacheRun = siteResult.withCache.runs[i];
+
                 worksheet.addRow({
                     A: siteName,
-                    B: '캐시 없음',
-                    C: index + 1,       // 측정 회차
-                    D: this.convertToOptimalUnit(run.fcp),
-                    E: this.convertToOptimalUnit(run.lcp),
-                    F: this.convertToOptimalUnit(run.tbt),
-                    G: run.cls,
-                    H: this.convertToOptimalUnit(run.si)
+                    B: i + 1,  // 회차
+                    C: noCacheRun ? this.convertToOptimalUnit(noCacheRun.fcp) : '',
+                    D: withCacheRun ? this.convertToOptimalUnit(withCacheRun.fcp) : '',
+                    E: noCacheRun ? this.convertToOptimalUnit(noCacheRun.lcp) : '',
+                    F: withCacheRun ? this.convertToOptimalUnit(withCacheRun.lcp) : '',
+                    G: noCacheRun ? this.convertToOptimalUnit(noCacheRun.tbt) : '',
+                    H: withCacheRun ? this.convertToOptimalUnit(withCacheRun.tbt) : '',
+                    I: noCacheRun ? noCacheRun.cls : '',
+                    J: withCacheRun ? withCacheRun.cls : '',
+                    K: noCacheRun ? this.convertToOptimalUnit(noCacheRun.si) : '',
+                    L: withCacheRun ? this.convertToOptimalUnit(withCacheRun.si) : ''
                 });
-            });
+            }
 
-            // 캐시 있음 각 회차
-            siteResult.withCache.runs.forEach((run, index) => {
-                worksheet.addRow({
-                    A: siteName,
-                    B: '캐시 있음',
-                    C: index + 1,       // 측정 회차
-                    D: this.convertToOptimalUnit(run.fcp),
-                    E: this.convertToOptimalUnit(run.lcp),
-                    F: this.convertToOptimalUnit(run.tbt),
-                    G: run.cls,
-                    H: this.convertToOptimalUnit(run.si)
-                });
-            });
-
-            // 해당 사이트의 평균 바로 아래에 추가
+            // 평균 행 추가
             const avgSiteName = siteName + " 평균";
-
-            // 캐시 없음 평균
             worksheet.addRow({
                 A: avgSiteName,
-                B: '캐시 없음',
-                C: '',  // 회차 번호 빈칸
-                D: this.convertToOptimalUnit(siteResult.noCache.average.fcp),
-                E: this.convertToOptimalUnit(siteResult.noCache.average.lcp),
-                F: this.convertToOptimalUnit(siteResult.noCache.average.tbt),
-                G: siteResult.noCache.average.cls,
-                H: this.convertToOptimalUnit(siteResult.noCache.average.si)
-            });
-
-            // 캐시 있음 평균
-            worksheet.addRow({
-                A: avgSiteName,
-                B: '캐시 있음',
-                C: '',  // 회차 번호 빈칸
+                B: '',  // 회차 빈칸
+                C: this.convertToOptimalUnit(siteResult.noCache.average.fcp),
                 D: this.convertToOptimalUnit(siteResult.withCache.average.fcp),
-                E: this.convertToOptimalUnit(siteResult.withCache.average.lcp),
-                F: this.convertToOptimalUnit(siteResult.withCache.average.tbt),
-                G: siteResult.withCache.average.cls,
-                H: this.convertToOptimalUnit(siteResult.withCache.average.si)
+                E: this.convertToOptimalUnit(siteResult.noCache.average.lcp),
+                F: this.convertToOptimalUnit(siteResult.withCache.average.lcp),
+                G: this.convertToOptimalUnit(siteResult.noCache.average.tbt),
+                H: this.convertToOptimalUnit(siteResult.withCache.average.tbt),
+                I: siteResult.noCache.average.cls,
+                J: siteResult.withCache.average.cls,
+                K: this.convertToOptimalUnit(siteResult.noCache.average.si),
+                L: this.convertToOptimalUnit(siteResult.withCache.average.si)
             });
         });
     }
@@ -163,34 +155,37 @@ class ReportGenerator {
                     };
 
                     // 숫자 컬럼은 우측 정렬 및 포맷 설정
-                    if (colNumber > 3) { // D, E, F, G, H (FCP, LCP, TBT, CLS, SI)
+                    if (colNumber > 2) { // C부터 L까지 (메트릭 데이터)
                         cell.alignment = { horizontal: 'right' };
 
-                        // CLS(7열)는 항상 숫자이므로 소수점 3자리
-                        if (colNumber === 7) { // G = CLS
+                        // CLS 컬럼 (I, J = 9, 10번)은 항상 숫자이므로 소수점 3자리
+                        if (colNumber === 9 || colNumber === 10) {
                             cell.numFmt = '0.000';
                         }
-                        // 나머지 컬럼(FCP, LCP, TBT, SI)은 단위가 포함된 문자열이므로 포맷 적용 안 함
-                    } else if (colNumber === 3) { // C = 회차
+                        // 나머지 컬럼은 단위가 포함된 문자열이므로 포맷 적용 안 함
+                    } else if (colNumber === 2) { // B = 회차
                         cell.alignment = { horizontal: 'center' };
                     } else {
                         cell.alignment = { horizontal: 'center' };
                     }
 
-                    // 캐시 있음/없음에 따른 배경색
-                    const cacheStatus = row.getCell(2).value;
-                    if (cacheStatus === '캐시 없음') {
-                        cell.fill = {
-                            type: 'pattern',
-                            pattern: 'solid',
-                            fgColor: { argb: 'FFFFEEE6' }
-                        };
-                    } else if (cacheStatus === '캐시 있음') {
-                        cell.fill = {
-                            type: 'pattern',
-                            pattern: 'solid',
-                            fgColor: { argb: 'FFE6FFE6' }
-                        };
+                    // 캐시 없음/있음 컬럼에 따른 배경색
+                    // 홀수 컬럼(C, E, G, I, K = 3, 5, 7, 9, 11): 캐시 없음
+                    // 짝수 컬럼(D, F, H, J, L = 4, 6, 8, 10, 12): 캐시 있음
+                    if (colNumber >= 3) {
+                        if (colNumber % 2 === 1) { // 홀수 = 캐시 없음
+                            cell.fill = {
+                                type: 'pattern',
+                                pattern: 'solid',
+                                fgColor: { argb: 'FFFFEEE6' }
+                            };
+                        } else { // 짝수 = 캐시 있음
+                            cell.fill = {
+                                type: 'pattern',
+                                pattern: 'solid',
+                                fgColor: { argb: 'FFE6FFE6' }
+                            };
+                        }
                     }
                 });
             }
@@ -209,13 +204,17 @@ class ReportGenerator {
     getColumnWidth(header) {
         const widths = {
             '사이트명': 20,
-            '캐시 상태': 12,
             '회차': 8,
-            'FCP': 12,
-            'LCP': 12,
-            'TBT': 12,
-            'CLS': 10,
-            'SI': 12
+            'FCP (캐시 없음)': 14,
+            'FCP (캐시 있음)': 14,
+            'LCP (캐시 없음)': 14,
+            'LCP (캐시 있음)': 14,
+            'TBT (캐시 없음)': 14,
+            'TBT (캐시 있음)': 14,
+            'CLS (캐시 없음)': 12,
+            'CLS (캐시 있음)': 12,
+            'SI (캐시 없음)': 14,
+            'SI (캐시 있음)': 14
         };
         return widths[header] || 15;
     }
