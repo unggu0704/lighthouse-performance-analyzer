@@ -88,15 +88,13 @@ class ReportGenerator {
                     H: this.convertToOptimalUnit(run.si)
                 });
             });
-        });
 
-        // 평균 데이터 추가
-        allResults.forEach(siteResult => {
-            const siteName = siteResult.siteName + " 평균";
+            // 해당 사이트의 평균 바로 아래에 추가
+            const avgSiteName = siteName + " 평균";
 
             // 캐시 없음 평균
             worksheet.addRow({
-                A: siteName,
+                A: avgSiteName,
                 B: '캐시 없음',
                 C: '',  // 회차 번호 빈칸
                 D: this.convertToOptimalUnit(siteResult.noCache.average.fcp),
@@ -108,7 +106,7 @@ class ReportGenerator {
 
             // 캐시 있음 평균
             worksheet.addRow({
-                A: siteName,
+                A: avgSiteName,
                 B: '캐시 있음',
                 C: '',  // 회차 번호 빈칸
                 D: this.convertToOptimalUnit(siteResult.withCache.average.fcp),
@@ -120,12 +118,12 @@ class ReportGenerator {
         });
     }
 
-    // 값이 1000 이상이면 초(s)로 변환, 미만이면 ms 그대로
+    // 값이 1000 이상이면 초(s)로 변환, 미만이면 ms 그대로, 단위 포함
     convertToOptimalUnit(valueInMs) {
         if (valueInMs >= 1000) {
-            return valueInMs / 1000; // 초로 변환
+            return `${(valueInMs / 1000).toFixed(3)}s`; // 초로 변환, 소수점 3자리
         }
-        return valueInMs; // ms 그대로
+        return `${Math.round(valueInMs)}ms`; // ms 그대로, 정수
     }
 
     applyStyles(worksheet) {
@@ -168,18 +166,11 @@ class ReportGenerator {
                     if (colNumber > 3) { // D, E, F, G, H (FCP, LCP, TBT, CLS, SI)
                         cell.alignment = { horizontal: 'right' };
 
-                        // CLS는 항상 소수점 3자리
+                        // CLS(7열)는 항상 숫자이므로 소수점 3자리
                         if (colNumber === 7) { // G = CLS
                             cell.numFmt = '0.000';
-                        } else {
-                            // 값이 1 미만이면 초 단위 (소수점 3자리), 아니면 ms (정수)
-                            const value = cell.value;
-                            if (typeof value === 'number' && value < 1 && value > 0) {
-                                cell.numFmt = '0.000';
-                            } else {
-                                cell.numFmt = '0';
-                            }
                         }
+                        // 나머지 컬럼(FCP, LCP, TBT, SI)은 단위가 포함된 문자열이므로 포맷 적용 안 함
                     } else if (colNumber === 3) { // C = 회차
                         cell.alignment = { horizontal: 'center' };
                     } else {
