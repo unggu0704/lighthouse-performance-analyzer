@@ -50,14 +50,10 @@ module.exports = {
             networkQuietThresholdMs: 1000,
             cpuQuietThresholdMs: 1000,
             formFactor: 'desktop',
-            throttlingMethod: 'simulate', // trace 수집을 위한 시뮬레이션 모드
             throttling: {
                 rttMs: 40,
                 throughputKbps: 10240,
-                cpuSlowdownMultiplier: 1,
-                requestLatencyMs: 0,
-                downloadThroughputKbps: 0,
-                uploadThroughputKbps: 0
+                cpuSlowdownMultiplier: 1
             },
             screenEmulation: {
                 mobile: false,
@@ -66,15 +62,7 @@ module.exports = {
                 deviceScaleFactor: 1,
                 disabled: false
             },
-            emulatedUserAgent: false,
-            // trace 수집 명시적 활성화
-            onlyAudits: [
-                'first-contentful-paint',
-                'largest-contentful-paint',
-                'total-blocking-time',
-                'cumulative-layout-shift',
-                'speed-index'
-            ]
+            emulatedUserAgent: false
         }
     },
 
