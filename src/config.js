@@ -9,15 +9,19 @@ module.exports = {
     // Chrome 설정
     CHROME_PORT: 9222,
     CHROME_FLAGS: [
-        '--headless',
-        '--disable-gpu',
+        '--headless=new',
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-extensions',
         '--disable-default-apps',
         '--no-first-run',
-        '--disable-background-timer-throttling'
+        '--enable-features=NetworkService',
+        '--force-color-profile=srgb',
+        '--disable-features=TranslateUI',
+        '--disable-ipc-flooding-protection',
+        '--metrics-recording-only',
+        '--mute-audio'
     ],
 
     // 측정 대상 사이트
