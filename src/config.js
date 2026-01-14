@@ -9,15 +9,19 @@ module.exports = {
     // Chrome 설정
     CHROME_PORT: 9222,
     CHROME_FLAGS: [
-        '--headless',
-        '--disable-gpu',
+        '--headless=new',
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-extensions',
         '--disable-default-apps',
         '--no-first-run',
-        '--disable-background-timer-throttling'
+        '--enable-features=NetworkService',
+        '--force-color-profile=srgb',
+        '--disable-features=TranslateUI',
+        '--disable-ipc-flooding-protection',
+        '--metrics-recording-only',
+        '--mute-audio'
     ],
 
     // 측정 대상 사이트
@@ -43,15 +47,11 @@ module.exports = {
         settings: {
             maxWaitForFcp: 45 * 1000,
             maxWaitForLoad: 45 * 1000,
-            pauseAfterFcpMs: 1000,
-            pauseAfterLoadMs: 1000,
-            networkQuietThresholdMs: 500,
-            cpuQuietThresholdMs: 500,
+            pauseAfterFcpMs: 1500,
+            pauseAfterLoadMs: 1500,
+            networkQuietThresholdMs: 1000,
+            cpuQuietThresholdMs: 1000,
             formFactor: 'desktop',
-            skipAudits: [
-                'screenshot-thumbnails',
-                'final-screenshot'
-            ],
             throttling: {
                 rttMs: 40,
                 throughputKbps: 10240,
