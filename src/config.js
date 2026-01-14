@@ -9,19 +9,17 @@ module.exports = {
     // Chrome 설정
     CHROME_PORT: 9222,
     CHROME_FLAGS: [
-        '--headless=new',
+        '--headless',
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-extensions',
         '--disable-default-apps',
         '--no-first-run',
-        '--enable-features=NetworkService',
-        '--force-color-profile=srgb',
-        '--disable-features=TranslateUI',
-        '--disable-ipc-flooding-protection',
-        '--metrics-recording-only',
-        '--mute-audio'
+        '--enable-automation',
+        '--disable-blink-features=AutomationControlled',
+        '--disable-features=IsolateOrigins,site-per-process',
+        '--remote-debugging-port=9222'
     ],
 
     // 측정 대상 사이트

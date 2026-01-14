@@ -88,10 +88,13 @@ class LighthouseRunner {
                 const result = await this.measureSingle(url, useCache);
                 results.push(result);
 
-                // 측정 간 대기 (마지막 측정 후에는 대기하지 않음)
+                // 측정 간 Chrome 재시작 (안정성 확보)
                 if (i < count) {
                     console.log(`   ⏳ ${config.WAIT_TIME_BETWEEN_MEASUREMENTS/1000}초 대기 중...`);
                     await this.sleep(config.WAIT_TIME_BETWEEN_MEASUREMENTS);
+
+                    console.log(`   🔄 다음 측정을 위한 Chrome 재시작...`);
+                    await this.chromeManager.restartChrome();
                 }
 
             } catch (error) {

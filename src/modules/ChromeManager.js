@@ -96,7 +96,14 @@ class ChromeManager {
     async restartChrome() {
         console.log('🔄 Chrome 재시작 중...');
         await this.stopChrome();
+
+        // 프로세스 완전 종료 대기
+        await this.sleep(2000);
+
+        // 혹시 남은 프로세스 강제 종료
+        await this.killExistingChrome();
         await this.sleep(1000);
+
         await this.startChrome();
     }
 
