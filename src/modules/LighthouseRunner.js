@@ -78,6 +78,13 @@ class LighthouseRunner {
             console.log(`📊 측정 중: ${url} (캐시 ${cacheStatus}) - ${i}번째`);
 
             try {
+                // 첫 측정이 아니면 Chrome 재시작 (Lighthouse 측정 후 연결 상태 복원)
+                if (i > 1) {
+                    console.log(`   🔄 측정 전 Chrome 재시작... (연결 안정화)`);
+                    await this.chromeManager.restartChrome();
+                    await this.sleep(1000);
+                }
+
                 const result = await this.measureSingle(url, useCache);
                 results.push(result);
 

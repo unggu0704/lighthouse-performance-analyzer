@@ -41,15 +41,22 @@ module.exports = {
 
     // Lighthouse 설정
     LIGHTHOUSE_OPTIONS: {
-        logLevel: 'info',
+        logLevel: 'error',
         output: 'json',
         onlyCategories: ['performance'],
         settings: {
             maxWaitForFcp: 45 * 1000,
             maxWaitForLoad: 45 * 1000,
+            pauseAfterFcpMs: 1000,
+            pauseAfterLoadMs: 1000,
             networkQuietThresholdMs: 1000,
             cpuQuietThresholdMs: 1000,
             formFactor: 'desktop',
+            skipAudits: [
+                'screenshot-thumbnails',
+                'final-screenshot',
+                'metrics'
+            ],
             throttling: {
                 rttMs: 40,
                 throughputKbps: 10240,
