@@ -73,24 +73,17 @@ class LighthouseRunner {
         
         for (let i = 1; i <= count; i++) {
             console.log(`📊 측정 중: ${url} (캐시 ${cacheStatus}) - ${i}번째`);
-            
+
             try {
-                // ✅ 추가: 첫 측정이 아니면 Chrome 재시작
-                if (i > 1) {
-                    console.log(`   🔄 측정 전 Chrome 재시작...`);
-                    await this.chromeManager.restartChrome();
-                    await this.sleep(1000);
-                }
-                
                 const result = await this.measureSingle(url, useCache);
                 results.push(result);
-                
+
                 // 측정 간 대기 (마지막 측정 후에는 대기하지 않음)
                 if (i < count) {
                     console.log(`   ⏳ ${config.WAIT_TIME_BETWEEN_MEASUREMENTS/1000}초 대기 중...`);
                     await this.sleep(config.WAIT_TIME_BETWEEN_MEASUREMENTS);
                 }
-                
+
             } catch (error) {
                 console.log(`   ❌ ${i}번째 측정 실패, 기본값 사용`);
                 results.push(this.getDefaultMetrics());
