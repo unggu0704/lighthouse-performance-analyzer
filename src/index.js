@@ -42,13 +42,6 @@ class PerformanceAnalyzer {
                 // 진행률 표시
                 Utils.showProgress(i, config.SITES.length, site.name);
 
-                // 다른 URL로 변경시에 Chrome 재시작
-                if (i > 0) {
-                    console.log(`\n🔄 다음 사이트 측정을 위한 Chrome 재시작...`);
-                    await this.chromeManager.restartChrome();
-                    await Utils.sleep(1000);
-                 }
-
                 const siteResult = await this.measureSite(site);
                 allResults.push(siteResult);
             }
@@ -87,7 +80,6 @@ class PerformanceAnalyzer {
             // 측정 간 대기, 캐시 모드 전환
             console.log(`🔄 캐시 모드 전환을 위한 Chrome 재시작...`);
             await this.chromeManager.restartChrome();
-            await Utils.sleep(1000);
 
             // 캐시 있음 측정
             console.log(`🎯 ${site.name} - 캐시 있음 측정 시작`);  

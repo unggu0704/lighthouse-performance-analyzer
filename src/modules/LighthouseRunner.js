@@ -34,12 +34,16 @@ class LighthouseRunner {
 
             console.log(`   📡 Lighthouse 연결 중... (포트: ${this.chromeManager.getPort()})`);
             const runnerResult = await lighthouse(url, options);
-            
+
             if (!runnerResult || !runnerResult.lhr) {
                 throw new Error('Lighthouse 결과가 유효하지 않습니다');
             }
 
             const result = this.extractMetrics(runnerResult.lhr);
+
+            // 메모리 해제
+            runnerResult.lhr = null;
+
             console.log(`   ✅ 측정 완료`);
             return result;
 
@@ -51,14 +55,17 @@ class LighthouseRunner {
             if (retryCount < maxRetries) {
                 console.log(`   🔄 재시도 중... (${retryCount + 1}/${maxRetries})`);
 
-                // Chrome 재시작
-                try {
-                    await this.chromeManager.restartChrome();
-                } catch (restartError) {
-                    console.log(`   ⚠️ Chrome 재시작 실패: ${restartError.message}`);
+                // 두 번째 재시도부터만 Chrome 재시작
+                if (retryCount >= 1) {
+                    try {
+                        console.log(`   🔄 Chrome 재시작 중...`);
+                        await this.chromeManager.restartChrome();
+                    } catch (restartError) {
+                        console.log(`   ⚠️ Chrome 재시작 실패: ${restartError.message}`);
+                    }
                 }
 
-                await this.sleep(1000);
+                await this.sleep(500);
                 return this.measureSingle(url, useCache, retryCount + 1);
             }
 
@@ -78,13 +85,6 @@ class LighthouseRunner {
             console.log(`📊 측정 중: ${url} (캐시 ${cacheStatus}) - ${i}번째`);
 
             try {
-                // 첫 측정이 아니면 Chrome 재시작 (Lighthouse 측정 후 연결 상태 복원)
-                if (i > 1) {
-                    console.log(`   🔄 측정 전 Chrome 재시작... (연결 안정화)`);
-                    await this.chromeManager.restartChrome();
-                    await this.sleep(1000);
-                }
-
                 const result = await this.measureSingle(url, useCache);
                 results.push(result);
 
