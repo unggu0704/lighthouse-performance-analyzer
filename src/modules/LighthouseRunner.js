@@ -45,21 +45,24 @@ class LighthouseRunner {
 
         } catch (error) {
             console.log(`   ❌ 측정 실패: ${error.message}`);
-            
+            console.log(`   📄 URL: ${url}`);
+            console.log(`   🔍 상세 에러:`, error.code || error.name || '알 수 없음');
+
             if (retryCount < maxRetries) {
                 console.log(`   🔄 재시도 중... (${retryCount + 1}/${maxRetries})`);
-                
+
                 // Chrome 재시작
                 try {
                     await this.chromeManager.restartChrome();
                 } catch (restartError) {
                     console.log(`   ⚠️ Chrome 재시작 실패: ${restartError.message}`);
                 }
-                
+
                 await this.sleep(1000);
                 return this.measureSingle(url, useCache, retryCount + 1);
             }
-            
+
+            console.log(`   💥 최종 실패 - 기본값(0) 사용`);
             throw error;
         }
     }

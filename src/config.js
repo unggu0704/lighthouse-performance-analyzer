@@ -4,7 +4,7 @@ module.exports = {
     MEASUREMENTS_PER_CACHE_TYPE: 2,
     WAIT_TIME_BETWEEN_MEASUREMENTS: 2000, // 2초
     MAX_RETRIES: 2,
-    MEASUREMENT_TIMEOUT: 30000, // 30초
+    MEASUREMENT_TIMEOUT: 45000, // 45초 (무거운 페이지 대응)
 
     // Chrome 설정
     CHROME_PORT: 9222,
@@ -41,12 +41,12 @@ module.exports = {
 
     // Lighthouse 설정
     LIGHTHOUSE_OPTIONS: {
-        logLevel: 'error',
+        logLevel: 'info',
         output: 'json',
         onlyCategories: ['performance'],
         settings: {
-            maxWaitForFcp: 30 * 1000,
-            maxWaitForLoad: 30 * 1000,
+            maxWaitForFcp: 45 * 1000,
+            maxWaitForLoad: 45 * 1000,
             networkQuietThresholdMs: 1000,
             cpuQuietThresholdMs: 1000,
             formFactor: 'desktop',
