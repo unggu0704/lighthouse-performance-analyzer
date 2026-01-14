@@ -18,7 +18,7 @@ class ChromeManager {
             
             // 기존 Chrome 프로세스 정리
             await this.killExistingChrome();
-            await this.sleep(2000);
+            await this.sleep(1500);
 
             this.chrome = await chromeLauncher.launch({
                 chromeFlags: config.CHROME_FLAGS,
@@ -29,9 +29,9 @@ class ChromeManager {
 
             this.chromePort = this.chrome.port;
             console.log(`✅ Chrome 시작 완료 (포트: ${this.chromePort})`);
-            
+
             // 연결 안정화를 위한 대기
-            await this.sleep(2000);
+            await this.sleep(1500);
             
         } catch (error) {
             console.error('❌ Chrome 시작 실패:', error);
@@ -96,7 +96,7 @@ class ChromeManager {
     async restartChrome() {
         console.log('🔄 Chrome 재시작 중...');
         await this.stopChrome();
-        await this.sleep(5000);
+        await this.sleep(3000);
         await this.startChrome();
     }
 

@@ -113,9 +113,9 @@ class ReportGenerator {
     // 값이 1000 이상이면 초(s)로 변환, 미만이면 ms 그대로, 단위 포함
     convertToOptimalUnit(valueInMs) {
         if (valueInMs >= 1000) {
-            return `${(valueInMs / 1000).toFixed(3)}s`; // 초로 변환, 소수점 3자리
+            return `${(valueInMs / 1000).toFixed(2)} s`; // 초로 변환, 소수점 2자리, 공백 추가
         }
-        return `${Math.round(valueInMs)}ms`; // ms 그대로, 정수
+        return `${Math.round(valueInMs)} ms`; // ms 그대로, 정수, 공백 추가
     }
 
     applyStyles(worksheet) {
@@ -255,9 +255,9 @@ class ReportGenerator {
 
     formatMetricForConsole(valueInMs) {
         if (valueInMs >= 1000) {
-            return `${(valueInMs / 1000).toFixed(3)}s`;
+            return `${(valueInMs / 1000).toFixed(2)} s`;
         }
-        return `${Math.round(valueInMs)}ms`;
+        return `${Math.round(valueInMs)} ms`;
     }
 }
 
