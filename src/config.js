@@ -4,7 +4,7 @@ module.exports = {
     MEASUREMENTS_PER_CACHE_TYPE: 2,
     WAIT_TIME_BETWEEN_MEASUREMENTS: 2000, // 2초
     MAX_RETRIES: 2,
-    MEASUREMENT_TIMEOUT: 45000, // 45초 (무거운 페이지 대응)
+    MEASUREMENT_TIMEOUT: 60000, // 60초 (매우 무거운 페이지 대응)
 
     // Chrome 설정
     CHROME_PORT: 9222,
@@ -45,17 +45,16 @@ module.exports = {
         output: 'json',
         onlyCategories: ['performance'],
         settings: {
-            maxWaitForFcp: 45 * 1000,
-            maxWaitForLoad: 45 * 1000,
-            pauseAfterFcpMs: 1000,
-            pauseAfterLoadMs: 1000,
+            maxWaitForFcp: 60 * 1000,
+            maxWaitForLoad: 60 * 1000,
+            pauseAfterFcpMs: 2000,
+            pauseAfterLoadMs: 2000,
             networkQuietThresholdMs: 1000,
             cpuQuietThresholdMs: 1000,
             formFactor: 'desktop',
             skipAudits: [
                 'screenshot-thumbnails',
-                'final-screenshot',
-                'metrics'
+                'final-screenshot'
             ],
             throttling: {
                 rttMs: 40,
