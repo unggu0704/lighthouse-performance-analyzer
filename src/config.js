@@ -43,15 +43,11 @@ module.exports = {
         settings: {
             maxWaitForFcp: 45 * 1000,
             maxWaitForLoad: 45 * 1000,
-            pauseAfterFcpMs: 1000,
-            pauseAfterLoadMs: 1000,
-            networkQuietThresholdMs: 500,
-            cpuQuietThresholdMs: 500,
+            pauseAfterFcpMs: 1500,
+            pauseAfterLoadMs: 1500,
+            networkQuietThresholdMs: 1000,
+            cpuQuietThresholdMs: 1000,
             formFactor: 'desktop',
-            skipAudits: [
-                'screenshot-thumbnails',
-                'final-screenshot'
-            ],
             throttling: {
                 rttMs: 40,
                 throughputKbps: 10240,
