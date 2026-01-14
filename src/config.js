@@ -10,16 +10,14 @@ module.exports = {
     CHROME_PORT: 9222,
     CHROME_FLAGS: [
         '--headless',
+        '--disable-gpu',
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-extensions',
         '--disable-default-apps',
         '--no-first-run',
-        '--enable-automation',
-        '--disable-blink-features=AutomationControlled',
-        '--disable-features=IsolateOrigins,site-per-process',
-        '--remote-debugging-port=9222'
+        '--disable-background-timer-throttling'
     ],
 
     // 측정 대상 사이트
